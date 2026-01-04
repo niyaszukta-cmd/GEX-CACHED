@@ -1530,44 +1530,44 @@ def main():
                 try:
                     fetcher = DhanHistoricalFetcher(DhanConfig())
                     df, meta = fetcher.process_historical_data(symbol, target_date, strikes, interval, expiry_code, expiry_flag)
+                    
+                    if df is None or len(df) == 0:
+                        st.error("❌ No data available for the selected date.")
+                        st.info("""
+                        **Troubleshooting Tips:**
+                        
+                        1. **Try a more recent date**: Dhan's historical data works best for the last 7-14 days
+                           - Try: December 30, 2025 or later
+                           - Current selection: """ + target_date + """
+                        
+                        2. **Verify it's a trading day**: 
+                           - Market open Monday-Friday (except holidays)
+                           - No trading on weekends or NSE holidays
+                        
+                        3. **For very recent dates** (yesterday/today):
+                           - Historical data takes 1-2 days to become available
+                           - Try enabling "Live Data Mode" instead
+                        
+                        4. **Check expiry selection**:
+                           - Current Week expiry might not have data on all days
+                           - Try "Next Week" or "Monthly" expiry
+                        
+                        5. **Token status**: Check sidebar for token validity
+                        """)
+                        return
+                    
+                    # Save to cache for future use
+                    cache_manager.save_to_cache(df, meta, symbol, target_date, interval, expiry_code, expiry_flag, strikes)
+                    st.success("✅ Data fetched and saved to cache!")
+                    
+                    st.session_state.df_data = df
+                    st.session_state.meta_data = meta
+                    st.session_state.data_fetched = True
+                    st.rerun()
                 
-                if df is None or len(df) == 0:
-                    st.error("❌ No data available for the selected date.")
-                    st.info("""
-                    **Troubleshooting Tips:**
-                    
-                    1. **Try a more recent date**: Dhan's historical data works best for the last 7-14 days
-                       - Try: December 30, 2025 or later
-                       - Current selection: """ + target_date + """
-                    
-                    2. **Verify it's a trading day**: 
-                       - Market open Monday-Friday (except holidays)
-                       - No trading on weekends or NSE holidays
-                    
-                    3. **For very recent dates** (yesterday/today):
-                       - Historical data takes 1-2 days to become available
-                       - Try enabling "Live Data Mode" instead
-                    
-                    4. **Check expiry selection**:
-                       - Current Week expiry might not have data on all days
-                       - Try "Next Week" or "Monthly" expiry
-                    
-                    5. **Token status**: Check sidebar for token validity
-                    """)
+                except Exception as e:
+                    st.error(f"❌ Error: {str(e)}")
                     return
-                
-                # Save to cache for future use
-                cache_manager.save_to_cache(df, meta, symbol, target_date, interval, expiry_code, expiry_flag, strikes)
-                st.success("✅ Data fetched and saved to cache!")
-                
-                st.session_state.df_data = df
-                st.session_state.meta_data = meta
-                st.session_state.data_fetched = True
-                st.rerun()
-            
-            except Exception as e:
-                st.error(f"❌ Error: {str(e)}")
-                return
         
         df = st.session_state.df_data
         meta = st.session_state.meta_data
