@@ -1527,10 +1527,10 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
                 
-                try:
-                    fetcher = DhanHistoricalFetcher(DhanConfig())
-                    df, meta = fetcher.process_historical_data(symbol, target_date, strikes, interval, expiry_code, expiry_flag)
-                    
+                Line 1530:  try:
+                fetcher = DhanHistoricalFetcher(DhanConfig())
+                df, meta = fetcher.process_historical_data(...)
+                
                     if df is None or len(df) == 0:
                         st.error("❌ No data available for the selected date.")
                         st.info("""
